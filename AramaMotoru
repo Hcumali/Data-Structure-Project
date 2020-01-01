@@ -3,7 +3,7 @@
 #include <string> // string işlemler için gereken kütüphane
 #include <ctime> // programın çalışma zamanını hesaplamak için gereken kütüphane
 #include <locale.h> // türkçe karakter kullanmamıza imkan sağlayan kütüphane
-using namespace std; // sürekli ( std:: ) yazmamak için gereken kütüphane
+using namespace std; // sürekli ( std:: ) yazmamak için gereken kod
 
 int TamEslesme(string arananString)  // sonucun direk bulundugu durumu hesaplayan fonksiyon
 {
