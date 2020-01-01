@@ -1,0 +1,150 @@
+#include <iostream> // temel yazma okuma fonksiyonları için gereken kütüphane
+#include <fstream> // dosyalama işlemleri için gereken kütüphane
+#include <string> // string işlemler için gereken kütüphane
+#include <ctime> // programın çalışma zamanını hesaplamak için gereken kütüphane
+#include <locale.h> // türkçe karakter kullanmamıza imkan sağlayan kütüphane
+using namespace std; // sürekli ( std:: ) yazmamak için gereken kütüphane
+
+int TamEslesme(string arananString)  // sonucun direk bulundugu durumu hesaplayan fonksiyon
+{
+	bool sonuc=0;
+	ifstream OkumaDosyasi;  // okuma dosyasi oluşturuluyor
+	OkumaDosyasi.open("dosya1.txt",ios::app); // okuma dosyasi dosya1 dosyası üzerinde açıldı
+
+	string okunanString;
+
+	while(!OkumaDosyasi.eof())
+	{
+		OkumaDosyasi>>okunanString; // dosyadan veri alınıyor
+		if(okunanString==arananString) // okunan deger ile kullanıcının girdiği değer aynı mı ?
+		{
+			system("CLS");
+			sonuc=1; // eslesme oldugunu gösterir
+			cout<<"Aradiginiz sonuc bulundu !"<<endl;
+			cout<<okunanString<<endl;
+		}
+	}
+
+	if(sonuc==0)
+	{
+		cout<<"Hata , Istediginiz sonuc bulunamadi !"<<endl<<endl;
+		OkumaDosyasi.close();
+		return 3;
+	}
+
+	OkumaDosyasi.close();
+	return 4;
+}
+
+void BunuMuDemekIstediniz(string arananString) // yakın sonuc icin yazdıgım fonksiyon
+{
+	// gerekli tanımlamalar
+	char UnluHarfler[]={'a','e','ı','i','u','ü','o','ö'};
+	char UnsuzHarfler[]={'b','c','ç','d','f','g','ğ','h','j','k','l','m','n','p','r','s','ş','t','v','y','z','x','w','q'};
+	int BenzerUnluHarflerSayaci=0;
+	int BenzerUnsuzHarflerSayaci=0;
+	int yakinsonucSayaci=0;
+
+	// dosya olusturulup acıldı
+	ifstream OkumaDosyasi2;
+	OkumaDosyasi2.open("Dosya1.txt",ios::app);
+
+	string okunanString2;
+	cout<<"Sunu mu demek istediniz ?"<<endl<<endl;
+	while(!OkumaDosyasi2.eof()) // dosyanın sonuna kadar
+	{
+		OkumaDosyasi2>>okunanString2; // dosyadan string veriyi al
+		int ArananStringUzunlugu=arananString.length(); // string uzunlugunu degiskene aktardım
+		int okunanString2Uzunlugu=okunanString2.length(); // string uzunlugunu degiskene aktardım
+
+		for(int i=0;i<8;i++) // ünlü harflerin uzunlugu kadar
+		{
+			for(int j=0;j<ArananStringUzunlugu;j++) // aradıgımız stringin uzunlugu kadar dön
+			{
+					if(UnluHarfler[i]==arananString[j]) // kullanıcının girmiş oldugu aradıgımız string ifadede ünlü harf bulursak // her ünlü harf için bütün string indislerini dolan 
+					{
+						// bulunan ünlü harf , dosyadan okunan kelime de var mı diye bakılıyor ..
+						for(int k=0;k<okunanString2Uzunlugu;k++)
+						{
+							if(arananString[j]==okunanString2[k]) // varsa sayacı arttır.
+								BenzerUnluHarflerSayaci++;
+						}
+
+					}
+			}
+		}
+
+
+		for(int i=0;i<24;i++) // ünsüz harflerin uzunlugu kadar q w x de dahil
+		{
+			for(int j=0;j<ArananStringUzunlugu;j++) // aradıgımız stringin uzunlugu kadar dön
+			{
+				if(UnsuzHarfler[i]==arananString[j]) // kullanıcının girmiş oldugu aradıgımız string ifadede ünlü harf bulursak // her ünlü harf için bütün string indislerini dolan 
+					{
+						// bulunan ünlü harf , dosyadan okunan kelime de var mı diye bakılıyor ..
+						for(int k=0;k<okunanString2Uzunlugu;k++)
+						{
+							if(arananString[j]==okunanString2[k]) // varsa sayacı arttır.
+								BenzerUnsuzHarflerSayaci++;
+						}
+
+					}
+			}
+		}
+
+		// kendim olusturdugum algoritma
+		
+		if(okunanString2[0]==arananString[0] && okunanString2[1]==arananString[1]) // ilk ve birinci harfler esit ise gir 
+			{
+				// string ifadelerin uzunlukları benzer ise
+				if(ArananStringUzunlugu-okunanString2Uzunlugu==0 || ArananStringUzunlugu-okunanString2Uzunlugu==1 || ArananStringUzunlugu-okunanString2Uzunlugu==-1)
+				{
+					if(BenzerUnluHarflerSayaci > 2 && BenzerUnsuzHarflerSayaci > 4) // 2 den fazla unlu 4 den fazla unsuz harf var ise sonuclar birbirine yakındır.
+					{
+						// sayacı arttır , ekrana bas
+						yakinsonucSayaci++; 
+						cout<<okunanString2<<endl;
+					}
+				}
+			}
+
+	}
+
+	cout<<endl<<yakinsonucSayaci<<" adet sonuc bulunmustur."<<endl; // kac adet sonuc bulundugu ekrana basılıyor
+
+	OkumaDosyasi2.close(); // OkumaDosyasi2 kapatılıyor !
+}
+
+
+int main()
+{
+	setlocale(LC_ALL, "Turkish"); // türkçe karakter kullanmamız için gereken kod !
+
+	string ArananString; // aradıgımız string ifade
+	cout<<"Aramak istediginiz metni giriniz: ";
+	cin>>ArananString;
+	cout<<endl;
+
+	clock_t baslangic,bitis; // clock türünden olusturduguz değişkenler
+
+	baslangic=clock(); // başladığı zamanı baslangic değişkenine aktardık.
+	if(TamEslesme(ArananString)==3) // aranan kelime bulunamadı ise bunu mu demek istediniz fonksiyonu devreye girer.
+	{
+		BunuMuDemekIstediniz(ArananString); // fonksiyon çalısır.
+	}
+	bitis=clock(); // bittiği zamanı bitis değişkenine aktardık.
+	
+	// bitiş zaman değeri başlangıçtan çıkartılarak programın çalışma zamanı bulunmuş olur
+	// clocks per sec = define tanımlanmış sabit bir değerdir - ctime kütüphanesi
+	cout<<endl<<"Programin calisma zamani: "<<(float)(bitis - baslangic) / CLOCKS_PER_SEC <<" saniye"<<endl;
+
+	cout<<endl;
+	system("PAUSE"); // programın kapanmasını engelle .
+	return 0;
+}
+
+// Veri Yapısı Proje Ödevi vy11
+
+// Hüseyin Cumalı 182113013
+// Tolga Şahin 182113017
+// Emirhan Çifci 182113041
